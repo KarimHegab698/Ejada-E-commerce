@@ -10,6 +10,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByCategory(String category, Pageable pageable);
     Page<Product> findByGender(String gender, Pageable pageable);
-    Page<Product> findByBestSeller(Boolean isNew, Pageable pageable);
+    Page<Product> findByisNew(Boolean isNew, Pageable pageable);
+    Page<Product> findByBestSeller(Boolean bestSeller, Pageable pageable);
     Page<Product> findByOnSale(Boolean onSale, Pageable pageable);
 }

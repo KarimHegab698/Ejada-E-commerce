@@ -37,6 +37,7 @@ public class ProductController {
     @GetMapping
     public Page<ProductResponse> getAll(@RequestParam(required = false) String category,
                                         @RequestParam(required = false) String gender,
+                                        @RequestParam(required = false) Boolean isNew,
                                         @RequestParam(required = false) Boolean bestSeller,
                                         @RequestParam(required = false) Boolean onSale,
                                         @PageableDefault(size = 20, sort = "id") Pageable pageable){
@@ -44,8 +45,8 @@ public class ProductController {
             return productService.getByCategory(category, pageable);
         if (gender != null)
             return productService.getByGender(gender, pageable);
-        if (bestSeller != null)
-            return productService.getByBestSeller(bestSeller, pageable);
+        if (isNew != null)
+            return productService.getByisNew(isNew, pageable);
         if (bestSeller != null)
             return productService.getByBestSeller(bestSeller, pageable);
         if (onSale != null)

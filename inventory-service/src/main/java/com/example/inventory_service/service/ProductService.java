@@ -82,6 +82,11 @@ public class ProductService {
                 .map(product -> toResponse(product, stockRepository.findByProductId(product.getId()).orElse(null)));
     }
 
+    public Page<ProductResponse> getByisNew(Boolean isNew, Pageable pageable){
+        return productRepository.findByisNew(isNew, pageable)
+                .map(product -> toResponse(product, stockRepository.findByProductId(product.getId()).orElse(null)));
+    }
+
     public Page<ProductResponse> getByBestSeller(Boolean bestSeller, Pageable pageable){
         return productRepository.findByBestSeller(bestSeller, pageable)
                 .map(product -> toResponse(product, stockRepository.findByProductId(product.getId()).orElse(null)));
