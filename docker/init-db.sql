@@ -1,0 +1,3 @@
+CREATE DATABASE wallet_db;
+CREATE DATABASE inventory_db;
+CREATE DATABASE shop_db;
