@@ -32,8 +32,8 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "original_price", precision = 10, scale = 2)
-    private BigDecimal originalPrice;
+    @Column(name = "discount_percentage", precision = 5, scale = 2)
+    private BigDecimal discountPercentage;
 
     private String category;
 
@@ -51,7 +51,7 @@ public class Product {
     @Builder.Default
     private Boolean onSale = false;
 
-    @Column(name = "display_price")
+    @Column(name = "display_price", precision = 10, scale = 2)
     private BigDecimal displayPrice;
 
     @Column(name = "image_url")

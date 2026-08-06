@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.ProviderNotFoundException;
 import java.util.List;
 
@@ -32,6 +34,21 @@ public class ProductService {
         this.imageUploadService = imageUploadService;
     }
 
+    private BigDecimal calculateDisplayPrice(BigDecimal price, BigDecimal discountPercentage, boolean onSale) {
+        if (price == null) {
+            return null;
+        }
+        if (!onSale || discountPercentage == null || discountPercentage.signum() <= 0) {
+            return price;
+        }
+
+        BigDecimal clampedPct = discountPercentage.min(BigDecimal.valueOf(100));
+        BigDecimal discountFraction = clampedPct.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+        BigDecimal discountAmount = price.multiply(discountFraction);
+
+        return price.subtract(discountAmount).setScale(2, RoundingMode.HALF_UP);
+    }
+
     @Transactional
     public ProductResponse createProduct(ProductRequest request, MultipartFile image){
         String imageUrl = (image != null && !image.isEmpty())
@@ -42,13 +59,13 @@ public class ProductService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
-                .originalPrice(request.getOriginalPrice())
+                .discountPercentage(request.getDiscountPercentage())
                 .category(request.getCategory())
                 .gender(request.getGender())
                 .isNew(request.getIsNew() == null || request.getIsNew())
                 .bestSeller(request.getBestSeller() == null || request.getBestSeller())
                 .onSale(request.getOnSale() == null || request.getOnSale())
-                .displayPrice(request.getPrice())
+                .displayPrice(calculateDisplayPrice(request.getPrice(), request.getDiscountPercentage(), request.getOnSale()))
                 .imageUrl(imageUrl)
                 .build();
         product = productRepository.save(product);
@@ -113,7 +130,7 @@ public class ProductService {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setOriginalPrice(request.getOriginalPrice());
+        product.setDiscountPercentage(request.getDiscountPercentage());
         product.setCategory(request.getCategory());
         product.setGender(request.getGender());
         product.setIsNew(request.getIsNew() == null ? product.getIsNew() : request.getIsNew());
@@ -123,12 +140,13 @@ public class ProductService {
         } else if (request.getImageUrl() != null) {
             product.setImageUrl(request.getImageUrl());
         }
-        product.setOnSale(request.getOnSale());
-        product.setDisplayPrice(
-                request.getOnSale()
-                        ? request.getPrice()
-                        : request.getOriginalPrice()
-        );
+        boolean onSale = request.getOnSale() != null ? request.getOnSale() : product.getOnSale();
+        BigDecimal discountPercentage = request.getDiscountPercentage() != null
+                ? request.getDiscountPercentage()
+                : product.getDiscountPercentage();
+        product.setOnSale(onSale);
+        product.setDiscountPercentage(discountPercentage);
+        product.setDisplayPrice(calculateDisplayPrice(request.getPrice(), discountPercentage, onSale));
         product = productRepository.save(product);
 
         Stock stock = stockRepository.findByProductId(id).orElse(null);
@@ -150,7 +168,7 @@ public class ProductService {
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
-                .originalPrice(product.getOriginalPrice())
+                .discountPercentage(product.getDiscountPercentage())
                 .category(product.getCategory())
                 .gender(product.getGender())
                 .isNew(product.getIsNew())

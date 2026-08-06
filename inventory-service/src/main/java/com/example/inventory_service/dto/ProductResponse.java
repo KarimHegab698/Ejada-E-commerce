@@ -16,7 +16,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private BigDecimal originalPrice;
+    private BigDecimal discountPercentage;
     private String category;
     private String gender;
     private Boolean isNew;

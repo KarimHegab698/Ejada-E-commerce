@@ -23,7 +23,7 @@ public class ProductRequest {
     @DecimalMin(value = "0.00")
     private BigDecimal price;
 
-    private BigDecimal originalPrice;
+    private BigDecimal discountPercentage;
 
     private String category;
 
